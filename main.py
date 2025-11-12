@@ -7,6 +7,7 @@ import data_manager # Mengimpor file pengelola data (JSON)
 import utils        # Mengimpor file utilitas (hash, clear screen)
 import getpass      # Untuk menyembunyikan input password
 import time
+import stdiomask    # Untuk menyembunyikan input password dengan mask karakter
 from rich import print as rprint # Menggunakan print dari rich
 
 def handle_login():
@@ -18,7 +19,8 @@ def handle_login():
     print("--- LOGIN AKUN ---")
     username = input("Username: ")
     # Gunakan getpass agar password tidak terlihat saat diketik
-    password = getpass.getpass("Password: ")
+    # KODE BARU:
+    password = stdiomask.getpass(prompt="Password: ", mask="*")
 
     # 1. Cari user di database (JSON)
     user_data = data_manager.dapatkan_user_by_username(username)

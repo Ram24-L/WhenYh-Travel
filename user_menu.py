@@ -1,60 +1,220 @@
 # user_menu.py
 # Penanggung Jawab: Person C
+# VERSI FINAL (Termasuk Pending Payment & Cetak PDF/QR/Email)
 
 import data_manager
 import utils
 import time
+import os
+import webbrowser
+import urllib.parse
 
-# (WAJIB) Install library 'rich' untuk tampilan yang lebih baik
-# jalankan di terminal: pip install rich
+# --- Import Library Eksternal ---
 from rich.console import Console
 from rich.table import Table
 from rich import print as rprint
 from rich.panel import Panel
 from rich.text import Text
 
+# --- Import Library PDF/QR ---
+try:
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import mm
+    import qrcode
+    LIBRARIES_LOADED = True
+except ImportError:
+    LIBRARIES_LOADED = False
+    # Jika gagal, program tetap jalan tapi fitur PDF/QR akan dinonaktifkan
+
 # Inisialisasi console dari rich
 console = Console()
 
-# --- FUNGSI UNTUK FITUR UNIK (PDF/QR) ---
-def _cetak_tiket(user, booking_data, paket):
+# =====================================================================
+# --- FITUR 1: CETAK TIKET PDF & BUKA EMAIL (SETELAH BAYAR) ---
+# =====================================================================
+
+def _buka_email_client(user, paket, nama_file_pdf):
     """
-    (Fitur Unik) Placeholder untuk men-generate tiket.
-    Person C dapat mengimplementasikan ini.
+    (FITUR UNIK 2)
+    Membuka email client default user dengan data yang sudah terisi.
     """
-    rprint(f"\n[bold yellow]Mencoba men-generate tiket untuk {booking_data['id_booking']}...[/bold yellow]")
+    try:
+        email_tujuan = user.get('email', '') # .get() agar aman jika 'email' tidak ada
+        if not email_tujuan:
+            rprint("[bold red]ERROR: Tidak dapat menemukan email Anda di data user.[/bold red]")
+            return
+
+        subjek = f"Tiket Anda untuk {paket['nama']} (ID: {paket['id_paket']})"
+        isi_email = (
+            f"Halo {user['username']},\n\n"
+            f"Terima kasih telah memesan paket {paket['nama']}!\n\n"
+            f"Tiket Anda (dalam format PDF) ada di file '{nama_file_pdf}'.\n"
+            "Silakan lampirkan (attach) file tersebut ke email ini untuk menyimpannya, atau cetak saat dibutuhkan.\n\n"
+            "Terima kasih,\n"
+            "When Yh Travel"
+        )
+        
+        url_email = f"mailto:{email_tujuan}" \
+                    f"?subject={urllib.parse.quote(subjek)}" \
+                    f"&body={urllib.parse.quote(isi_email)}"
+
+        webbrowser.open(url_email)
+        
+        rprint(f"\n[italic]Silakan periksa browser atau aplikasi email Anda.[/italic]")
+        rprint(f"[bold]Jangan lupa lampirkan file:[/bold] {nama_file_pdf}")
+        input("\nTekan Enter untuk melanjutkan...")
+
+    except Exception as e:
+        rprint(f"[bold red]Gagal membuka email client: {e}[/bold red]")
+        time.sleep(2)
+
+def _generate_ticket_pdf(user, booking_data, paket):
+    """
+    (FITUR UNIK 1)
+    Membuat file PDF tiket yang berisi detail booking dan QR Code.
+    """
     
-    # LANGKAH-LANGKAH IMPLEMENTASI (oleh Person C):
-    # 1. Install library: pip install reportlab qrcode
-    # 2. Import: from reportlab.pdfgen import canvas
-    #            import qrcode
-    #            import os
-    # 3. Generate QR Code:
-    #    - data_qr = f"Booking:{booking_data['id_booking']},User:{user['username']},Paket:{paket['nama']}"
-    #    - img_qr = qrcode.make(data_qr)
-    #    - nama_file_qr = f"qr_{booking_data['id_booking']}.png"
-    #    - img_qr.save(nama_file_qr)
-    #
-    # 4. Buat PDF (menggunakan reportlab):
-    #    - nama_file_pdf = f"tiket_{booking_data['id_booking']}.pdf"
-    #    - c = canvas.Canvas(nama_file_pdf)
-    #    - c.drawString(100, 800, "--- E-TIKET TRAVEL ---")
-    #    - c.drawString(100, 780, f"Nama: {user['username']}")
-    #    - c.drawString(100, 760, f"Paket: {paket['nama']}")
-    #    - c.drawString(100, 740, f"Jumlah: {booking_data['jumlah_tiket']} tiket")
-    #    - c.drawString(100, 720, f"Total Bayar: Rp {booking_data['total_bayar']:,}")
-    #    - c.drawImage(nama_file_qr, 100, 500, width=200, height=200) # Masukkan QR ke PDF
-    #    - c.save()
-    # 5. Hapus file QR sementara: os.remove(nama_file_qr)
+    if not LIBRARIES_LOADED:
+        rprint("\n[bold red]ERROR: Library 'reportlab' atau 'qrcode' tidak terinstal.[/bold red]")
+        rprint("[italic]Fitur cetak PDF/QR tidak aktif. Silakan jalankan 'pip install reportlab qrcode[pil]'[/italic]")
+        time.sleep(3)
+        return
 
-    # Simulasi sukses
-    nama_file_pdf = f"tiket_{booking_data['id_booking']}.pdf"
-    rprint(f"[bold green]SUKSES! Tiket telah disimpan sebagai '{nama_file_pdf}'[/bold green]")
-    rprint("[italic](Implementasi PDF/QR code oleh Person C)[/italic]")
-    time.sleep(3)
+    booking_id = booking_data['id_booking']
+    nama_file_pdf = f"tiket_{booking_id}.pdf"
+    nama_file_qr = f"temp_qr_{booking_id}.png"
+    
+    rprint(f"\n[bold yellow]Membuat tiket {nama_file_pdf}...[/bold yellow]")
+    
+    try:
+        # --- 1. Buat QR Code ---
+        qr_data = f"Booking ID: {booking_id}\nUser: {user['username']}\nPaket: {paket['nama']}"
+        img_qr = qrcode.make(qr_data)
+        img_qr.save(nama_file_qr)
+
+        # --- 2. Buat Halaman PDF ---
+        c = canvas.Canvas(nama_file_pdf, pagesize=A4)
+        width, height = A4
+        
+        # --- 3. Tulis Teks ke PDF ---
+        c.setFont("Helvetica-Bold", 18)
+        c.drawCentredString(width / 2.0, height - (30*mm), "E-TIKET - WHEN YH TRAVEL")
+        c.line(30*mm, height - (35*mm), width - (30*mm), height - (35*mm))
+
+        c.setFont("Helvetica", 12)
+        c.drawString(30*mm, height - (45*mm), f"Booking ID  : {booking_id}")
+        c.drawString(30*mm, height - (50*mm), f"Nama User   : {user['username']}")
+        
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(30*mm, height - (60*mm), f"Paket: {paket['nama']}")
+        c.setFont("Helvetica", 12)
+        c.drawString(30*mm, height - (65*mm), f"Jumlah      : {booking_data['jumlah_tiket']} tiket")
+        c.drawString(30*mm, height - (70*mm), f"Total Bayar : Rp {booking_data['total_bayar']:,}")
+
+        # --- 4. Masukkan Gambar QR ke PDF ---
+        c.drawImage(nama_file_qr, width - (70*mm), height - (70*mm), width=150, height=150)
+        
+        c.showPage()
+        c.save()
+
+        # --- 5. Hapus file QR sementara ---
+        os.remove(nama_file_qr)
+        
+        rprint(f"[bold green]SUKSES! Tiket telah disimpan sebagai '{nama_file_pdf}'[/bold green]")
+        
+        # --- 6. Panggil Fitur Email ---
+        rprint("[bold yellow]Membuka email client Anda...[/bold yellow]")
+        time.sleep(1)
+        _buka_email_client(user, paket, nama_file_pdf)
+
+    except Exception as e:
+        rprint(f"\n[bold red]ERROR: Gagal membuat tiket PDF.[/bold red]")
+        rprint(f"[italic]Detail: {e}[/italic]")
+        time.sleep(3)
+        if os.path.exists(nama_file_qr):
+            os.remove(nama_file_qr)
 
 
+# =====================================================================
+# --- FITUR 2: SIMULASI PENDING PAYMENT (SAAT BELI) ---
+# =====================================================================
+
+def _handle_pembayaran_simulasi(user, paket, jumlah_tiket, total_bayar):
+    """
+    (FITUR UNIK 3)
+    Mensimulasikan alur payment gateway dengan 'pending state'.
+    Mengembalikan True jika sukses, False jika dibatalkan.
+    """
+    utils.bersihkan_layar()
+    rprint("--- [bold yellow]SIMULASI PAYMENT GATEWAY[/bold yellow] ---")
+    rprint(f"Paket       : [green]{paket['nama']}[/green]")
+    rprint(f"Total Tagihan : [blue]Rp {total_bayar:,}[/blue]")
+    
+    rprint("\nSilakan pilih metode pembayaran:")
+    rprint("[1] Virtual Account (Simulasi)")
+    rprint("[2] QRIS (Simulasi Cetak di Terminal)")
+    rprint("[3] Batal")
+    
+    pilihan = input("Pilihan: ").strip()
+
+    if pilihan == '1':
+        # --- SIMULASI VIRTUAL ACCOUNT ---
+        utils.bersihkan_layar()
+        va_number = f"8808{user['username'].encode().hex()[:8]}"
+        rprint(f"Silakan transfer ke [bold]Virtual Account: {va_number}[/bold]")
+        rprint(f"Sebesar [bold blue]Rp {total_bayar:,}[/bold blue]")
+        rprint("\n[italic]Aplikasi akan menunggu pembayaran Anda...[/italic]")
+        
+        konfirmasi_bayar = input("Ketik 'bayar' untuk mensimulasikan pembayaran lunas: ").strip().lower()
+        
+        if konfirmasi_bayar == 'bayar':
+            return True # Pembayaran sukses
+        else:
+            return False # Pembayaran dibatalkan
+
+    elif pilihan == '2':
+        # --- SIMULASI QRIS (CETAK KE TERMINAL) ---
+        if not LIBRARIES_LOADED:
+            rprint("\n[bold red]ERROR: Library 'qrcode' tidak terinstal.[/bold red]")
+            rprint("[italic]Fitur QRIS tidak aktif. Silakan jalankan 'pip install qrcode[pil]'[/italic]")
+            time.sleep(3)
+            return False
+            
+        utils.bersihkan_layar()
+        rprint("Silakan pindai [bold]QRIS[/bold] di bawah ini menggunakan aplikasi Anda.")
+        rprint(f"Tagihan: [bold blue]Rp {total_bayar:,}[/bold blue]")
+        
+        try:
+            qris_data = f"QRIS.WHENYH.IDR_{total_bayar}.BOOKING_{paket['id_paket']}"
+            qr = qrcode.QRCode(version=1, box_size=10, border=4)
+            qr.add_data(qris_data)
+            qr.make(fit=True)
+            
+            rprint("\n")
+            qr.print_tty() # Mencetak QR code ke terminal
+            rprint("\n")
+            
+        except Exception as e:
+            rprint(f"[bold red]Gagal membuat QR Code di terminal: {e}[/bold red]")
+            time.sleep(2)
+            return False
+
+        rprint("[italic]Aplikasi akan menunggu pembayaran Anda...[/italic]")
+        konfirmasi_bayar = input("Ketik 'bayar' untuk mensimulasikan pembayaran lunas: ").strip().lower()
+        
+        if konfirmasi_bayar == 'bayar':
+            return True # Pembayaran sukses
+        else:
+            return False # Pembayaran dibatalkan
+
+    else:
+        # Pilihan [3] Batal
+        return False
+
+# =====================================================================
 # --- FUNGSI MENU UTAMA USER ---
+# =====================================================================
 
 def _lihat_semua_paket(tunggu=True):
     """
@@ -77,7 +237,6 @@ def _lihat_semua_paket(tunggu=True):
     table.add_column("Sisa Kuota", justify="right")
     
     for paket in paket_list:
-        # Hanya tampilkan jika kuota masih ada
         if paket['kuota'] > 0:
             table.add_row(
                 paket['id_paket'],
@@ -100,7 +259,6 @@ def _lihat_detail_paket():
     utils.bersihkan_layar()
     rprint("--- [bold yellow]DETAIL & RUNDOWN PAKET[/bold yellow] ---")
 
-    # Tampilkan daftar paket dulu agar user tahu ID-nya
     if not _lihat_semua_paket(tunggu=False):
         return
 
@@ -112,10 +270,8 @@ def _lihat_detail_paket():
         time.sleep(2)
         return
 
-    # Tampilkan detail menggunakan Rich Panel
     utils.bersihkan_layar()
     
-    # Buat teks rundown
     rundown_text = Text()
     if paket['rundown']:
         for i, item in enumerate(paket['rundown'], 1):
@@ -131,12 +287,12 @@ def _lihat_detail_paket():
     panel_content.append(rundown_text)
 
     console.print(Panel(panel_content, title=f"[bold green]{paket['nama']}[/bold green]", border_style="yellow"))
-    
     input("\nTekan Enter untuk kembali...")
 
 def _beli_tiket(user):
     """
     Alur logika untuk user membeli tiket.
+    (SUDAH DIPERBARUI DENGAN LOGIKA PAYMENT GATEWAY)
     """
     utils.bersihkan_layar()
     rprint("--- [bold yellow]PEMBELIAN TIKET[/bold yellow] ---")
@@ -167,7 +323,7 @@ def _beli_tiket(user):
             elif jumlah_tiket > paket['kuota']:
                 rprint(f"[bold red]MAAF: Jumlah tiket melebihi sisa kuota ({paket['kuota']}).[/bold red]")
             else:
-                break # Jumlah valid
+                break
         except ValueError:
             rprint("[bold red]ERROR: Masukkan harus berupa angka.[/bold red]")
 
@@ -181,35 +337,41 @@ def _beli_tiket(user):
     rprint("--------------------------------- +")
     rprint(f"Total Bayar  : [bold blue]Rp {total_bayar:,}[/bold blue]")
     
-    konfirmasi = input("\nLanjutkan pembayaran? (y/n): ").strip().lower()
+    konfirmasi = input("\nLanjutkan ke pembayaran? (y/n): ").strip().lower()
 
     if konfirmasi == 'y':
-        # 4. Proses Transaksi
+        # 4. (BARU) Panggil Modul Pembayaran Simulasi
+        sukses_bayar = _handle_pembayaran_simulasi(user, paket, jumlah_tiket, total_bayar)
         
-        # a. Buat data booking
-        booking_data = {
-            "username_user": user['username'],
-            "id_paket": id_paket,
-            "jumlah_tiket": jumlah_tiket,
-            "total_bayar": total_bayar
-            # 'id_booking' akan di-generate oleh data_manager
-        }
-        # Simpan booking (tugas Person A)
-        booking_tersimpan = data_manager.simpan_booking_baru(booking_data)
+        if sukses_bayar:
+            # 5. Proses Transaksi HANYA JIKA BAYAR SUKSES
+            
+            # a. Buat data booking
+            booking_data = {
+                "username_user": user['username'],
+                "id_paket": id_paket,
+                "jumlah_tiket": jumlah_tiket,
+                "total_bayar": total_bayar
+            }
+            booking_tersimpan = data_manager.simpan_booking_baru(booking_data)
 
-        # b. Kurangi kuota paket
-        sisa_kuota = paket['kuota'] - jumlah_tiket
-        data_update = {"kuota": sisa_kuota}
-        # Update paket (tugas Person A)
-        data_manager.update_paket(id_paket, data_update)
+            # b. Kurangi kuota paket
+            sisa_kuota = paket['kuota'] - jumlah_tiket
+            data_update = {"kuota": sisa_kuota}
+            data_manager.update_paket(id_paket, data_update)
 
-        rprint(f"\n[bold green]SUKSES! Pembelian berhasil (ID Booking: {booking_tersimpan['id_booking']}).[/bold green]")
+            rprint(f"\n[bold green]PEMBAYARAN DITERIMA! (ID Booking: {booking_tersimpan['id_booking']}).[/bold green]")
+            
+            # c. Cetak tiket PDF & buka email
+            _generate_ticket_pdf(user, booking_tersimpan, paket)
         
-        # Panggil fitur unik (tugas Person C)
-        _cetak_tiket(user, booking_tersimpan, paket)
-        
+        else:
+            # Jika _handle_pembayaran_simulasi() mengembalikan False
+            rprint("\n[bold red]PEMBAYARAN DIBATALKAN / GAGAL.[/bold red]")
+            time.sleep(2)
+            
     else:
-        rprint("\nPembelian dibatalkan.", style="italic")
+        rprint("\n[italic]Pembelian dibatalkan.[/italic]")
         time.sleep(2)
 
 
@@ -221,7 +383,6 @@ def _lihat_histori(user, tunggu=True):
         utils.bersihkan_layar()
         rprint("--- [bold yellow]RIWAYAT BOOKING SAYA[/bold yellow] ---")
 
-    # Ambil data (tugas Person A)
     bookings = data_manager.dapatkan_booking_by_user(user['username'])
     
     if not bookings:
@@ -233,12 +394,11 @@ def _lihat_histori(user, tunggu=True):
     table = Table(title=f"Histori Booking - {user['username']}", show_header=True, header_style="bold magenta")
     table.add_column("ID Booking", style="cyan")
     table.add_column("ID Paket", style="cyan")
-    table.add_column("Nama Paket", style="green") # Tambahan: lebih informatif
+    table.add_column("Nama Paket", style="green")
     table.add_column("Jml Tiket", justify="right")
     table.add_column("Total Bayar (Rp)", style="blue", justify="right")
 
     for booking in bookings:
-        # Ambil nama paket agar lebih jelas
         paket = data_manager.dapatkan_paket_by_id(booking['id_paket'])
         nama_paket = paket['nama'] if paket else "[Paket Dihapus]"
         
@@ -259,30 +419,30 @@ def _lihat_histori(user, tunggu=True):
 def _beri_rating(user):
     """
     Alur untuk user memberikan rating pada paket yang sudah dibeli.
+    (SUDAH DIPERBAIKI - 'Flashing' bug)
     """
     utils.bersihkan_layar()
     rprint("--- [bold yellow]BERI RATING & ULASAN[/bold yellow] ---")
     
-    # Tampilkan histori dulu
-    if not _lihat_histori(user, tunggu=False):
-        rprint(f"\n[bold red]ERROR: Anda harus membeli tiket terlebih dahulu.[/bold red]")
-        time.sleep(3) # <--- TAMBAHKAN BARIS INI
-        return # Kembali jika belum punya histori
+    # Perbaikan "Flashing" Bug
+    if not data_manager.dapatkan_booking_by_user(user['username']):
+        rprint(f"\n[bold red][ERROR] Anda belum memiliki riwayat booking untuk diberi rating.[/bold red]")
+        time.sleep(2)
+        return
         
+    # Jika lolos, baru tampilkan histori untuk dipilih
+    _lihat_histori(user, tunggu=False)
 
-    # Dapatkan daftar paket yg *sudah dibeli*
     bookings = data_manager.dapatkan_booking_by_user(user['username'])
-    paket_dibeli_ids = {b['id_paket'] for b in bookings} # Pakai set agar unik
+    paket_dibeli_ids = {b['id_paket'] for b in bookings}
 
     id_paket = input("\nMasukkan ID Paket yang ingin diberi rating: ").strip()
 
-    # Validasi: Hanya boleh rating paket yang sudah dibeli
     if id_paket not in paket_dibeli_ids:
         rprint(f"\n[bold red]ERROR: Anda hanya bisa memberi rating untuk paket yang sudah Anda beli.[/bold red]")
         time.sleep(2)
         return
 
-    # Validasi: Cek apakah paketnya masih ada
     paket = data_manager.dapatkan_paket_by_id(id_paket)
     if not paket:
         rprint(f"\n[bold red]ERROR: Paket ini (ID: {id_paket}) sepertinya sudah tidak ada.[/bold red]")
@@ -291,7 +451,6 @@ def _beri_rating(user):
 
     rprint(f"\nMemberi rating untuk: [bold green]{paket['nama']}[/bold green]")
     
-    # Input Skor
     while True:
         try:
             skor = int(input("Skor (1-5): "))
@@ -304,7 +463,6 @@ def _beri_rating(user):
             
     komentar = input("Komentar singkat (opsional): ").strip()
 
-    # Siapkan data
     data_rating = {
         "username_user": user['username'],
         "id_paket": id_paket,
@@ -312,7 +470,6 @@ def _beri_rating(user):
         "komentar": komentar
     }
     
-    # Simpan (tugas Person A)
     data_manager.simpan_rating_baru(data_rating)
     
     rprint(f"\n[bold green]SUKSES! Terima kasih atas ulasan Anda untuk '{paket['nama']}'.[/bold green]")
@@ -343,19 +500,16 @@ def _tampilkan_menu_riwayat(user):
             time.sleep(1)
 
 
+# =====================================================================
 # --- FUNGSI UTAMA (ENTRY POINT) ---
-#
-# INI ADALAH BAGIAN YANG MEMPERBAIKI ERROR ANDA
-# Pastikan ini ada dan TIDAK TER-INDENTASI (rata kiri)
-#
+# =====================================================================
+
 def start(user):
     """
     Fungsi utama yang dipanggil oleh main.py saat user login.
-    'user' berisi data user yang sedang login (misal: {'username': 'budi', 'role': 'user', ...})
     """
     utils.bersihkan_layar()
     
-    # "Dashboard" Sederhana (Fitur Unik)
     bookings_user = data_manager.dapatkan_booking_by_user(user['username'])
     jumlah_booking = len(bookings_user)
     
@@ -379,14 +533,13 @@ def start(user):
         elif pilihan == '2':
             _lihat_detail_paket()
         elif pilihan == '3':
-            _beli_tiket(user) # Perlu 'user' untuk tahu siapa yg beli
-        elif pilihan == '4': #<- Sepertinya ada typo di kode sebelumnya, saya perbaiki jadi '4'
-            _tampilkan_menu_riwayat(user) # Masuk ke sub-menu
+            _beli_tiket(user)
+        elif pilihan == '4':
+            _tampilkan_menu_riwayat(user)
         elif pilihan == '5':
-           # BENAR (KODE BARU)
             rprint("\n[cyan]Logout berhasil. Kembali ke menu utama...[/cyan]")
             time.sleep(1)
-            break # Keluar dari loop user, kembali ke main.py
+            break
         else:
             rprint("\n[bold red]ERROR: Pilihan tidak valid.[/bold red]")
             time.sleep(1)

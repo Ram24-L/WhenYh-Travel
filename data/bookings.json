@@ -33,5 +33,12 @@
     "jumlah_tiket": 3,
     "total_bayar": 4500000,
     "id_booking": "B-4d143a0e"
+  },
+  {
+    "username_user": "Ramdhan",
+    "id_paket": "P-006f2c04",
+    "jumlah_tiket": 2,
+    "total_bayar": 5000000,
+    "id_booking": "B-866ac52d"
   }
 ]
