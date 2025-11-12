@@ -1,0 +1,30 @@
+[
+  {
+    "username_user": "Ramdhan",
+    "id_paket": "P-aaa111",
+    "jumlah_tiket": 2,
+    "total_bayar": 3000000,
+    "id_booking": "B-xyz111"
+  },
+  {
+    "username_user": "Ramdhan",
+    "id_paket": "P-bbb222",
+    "jumlah_tiket": 1,
+    "total_bayar": 4500000,
+    "id_booking": "B-xyz222"
+  },
+  {
+    "username_user": "Vibecoder",
+    "id_paket": "P-ccc333",
+    "jumlah_tiket": 1,
+    "total_bayar": 950000,
+    "id_booking": "B-xyz333"
+  },
+  {
+    "username_user": "Ramdhan",
+    "id_paket": "P-ccc333",
+    "jumlah_tiket": 1,
+    "total_bayar": 950000,
+    "id_booking": "B-827e3733"
+  }
+]

@@ -1,0 +1,57 @@
+[
+  {
+    "nama": "Trip 3D2N Bromo",
+    "harga": 1500000,
+    "kuota": 18,
+    "rundown": [
+      "Hari 1: Penjemputan di Malang, Cek-in hotel",
+      "Hari 2: Bromo Sunrise Tour (Penanjakan, Kawah)",
+      "Hari 3: Check-out, Wisata oleh-oleh"
+    ],
+    "id_paket": "P-aaa111"
+  },
+  {
+    "nama": "Liburan 5D4N Bali",
+    "harga": 4500000,
+    "kuota": 14,
+    "rundown": [
+      "Hari 1: Penjemputan di Airport, Cek-in",
+      "Hari 2: Watersport Tanjung Benoa",
+      "Hari 3: Tour Kintamani & Desa Penglipuran",
+      "Hari 4: Pura Tanah Lot, Sunset di Kuta",
+      "Hari 5: Check-out, Pusat oleh-oleh"
+    ],
+    "id_paket": "P-bbb222"
+  },
+  {
+    "nama": "Diving Wakatobi",
+    "harga": 5000000,
+    "kuota": 12,
+    "rundown": [
+      "Hari 1: Tiba di Wakatobi",
+      "Hari 2: Diving Spot 1 & 2",
+      "Hari 3: Diving Spot 3"
+    ],
+    "id_paket": "P-ddd444"
+  },
+  {
+    "nama": "Tektok Bromo 2D1N",
+    "harga": 2500000,
+    "kuota": 20,
+    "rundown": [
+      "\"23:00 - 00:00: Penjemputan di meeting point (Malang/Surabaya).\",",
+      "\"00:00 - 02:30: Perjalanan menuju rest area Bromo (Sukapura/Cemoro Lawang).\",",
+      "\"02:30 - 03:00: Tiba di rest area, transfer ke armada Jeep 4x4.\",",
+      "\"03:00 - 04:00: Perjalanan menuju Puncak Penanjakan 1 (Viewpoint Sunrise).\",",
+      "\"04:00 - 06:00: Menikmati Bromo Sunrise.\",",
+      "\"06:00 - 07:00: Turun ke Lautan Pasir, berhenti di Pura Luhur Poten.\",",
+      "\"07:00 - 08:00: Mendaki Kawah Bromo (jalan kaki atau sewa kuda).\",",
+      "\"08:00 - 09:00: Mengunjungi Pasir Berbisik.\",",
+      "\"09:00 - 09:30: Mengunjungi Bukit Teletubbies (Padang Savana).\",",
+      "\"09:30 - 10:30: Kembali ke rest area, bersih-bersih, sarapan (opsional).\",",
+      "\"10:30 - 13:00: Perjalanan kembali ke meeting point (Malang/Surabaya).\",",
+      "\"13:00: Tiba di meeting point, tour selesai.\""
+    ],
+    "id_paket": "P-006f2c04"
+  }
+]

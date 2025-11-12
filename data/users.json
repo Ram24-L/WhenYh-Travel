@@ -1,0 +1,22 @@
+[
+  {
+    "username": "admin",
+    "password_hash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+    "role": "admin"
+  },
+  {
+    "username": "Ramdhan",
+    "password_hash": "3fd83e3c607f8233c429e1e5d60a7ef5c2b515ec5236e89d77aeba9ed29dd0cf",
+    "role": "user"
+  },
+  {
+    "username": "Vibecoder",
+    "password_hash": "d60771db3c0e075ac8d6cefa42aaca15f50871affacee2aafef4efea849f11b7",
+    "role": "user"
+  },
+  {
+    "username": "t",
+    "password_hash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
+    "role": "user"
+  }
+]
