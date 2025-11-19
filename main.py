@@ -1,5 +1,3 @@
-# main.py
-# Penanggung Jawab: Person A
 
 import admin_menu   # Mengimpor file menu admin
 import user_menu    # Mengimpor file menu user
