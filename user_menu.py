@@ -203,40 +203,106 @@ def _handle_pembayaran_simulasi(user, paket, jumlah_tiket, total_bayar):
 
 def _lihat_semua_paket(tunggu=True):
     """
-    Menampilkan semua paket yang tersedia dalam tabel.
+    Menampilkan paket dengan konsep INTERACTIVE DASHBOARD.
+    User bisa search & sort berulang kali tanpa keluar menu.
     """
-    utils.bersihkan_layar()
-    rprint("--- [bold yellow]DAFTAR PAKET TRAVEL TERSEDIA[/bold yellow] ---")
     
-    paket_list = data_manager.dapatkan_semua_paket()
+    # --- STATE AWAL (Default) ---
+    current_keyword = ""       # Tidak ada filter nama
+    current_sort = '1'         # Default: Harga Termurah
     
-    if not paket_list:
-        rprint("[italic]Belum ada paket travel yang tersedia saat ini.[/italic]")
-        time.sleep(2)
-        return False
+    while True:
+        utils.bersihkan_layar()
+        
+        # 1. Ambil Data Mentah
+        paket_list = data_manager.dapatkan_semua_paket()
+        
+        # 2. Terapkan LOGIKA FILTER (Search)
+        if current_keyword:
+            paket_list = [p for p in paket_list if current_keyword in p['nama'].lower()]
 
-    table = Table(show_header=True, header_style="bold magenta")
-    table.add_column("ID Paket", style="cyan", width=10)
-    table.add_column("Nama Paket", style="green", min_width=20)
-    table.add_column("Harga (Rp)", style="blue", justify="right")
-    table.add_column("Sisa Kuota", justify="right")
-    
-    for paket in paket_list:
-        if paket['kuota'] > 0:
-            table.add_row(
-                paket['id_paket'],
-                paket['nama'],
-                f"{paket['harga']:,}",
-                str(paket['kuota'])
-            )
-    
-    console.print(table)
-    
-    if tunggu:
-        input("\nTekan Enter untuk kembali...")
-    
+        # 3. Terapkan LOGIKA SORTING
+        if current_sort == '2':   # Harga Termahal
+            paket_list = sorted(paket_list, key=lambda p: p['harga'], reverse=True)
+            sort_label = "Harga (Termahal)"
+        elif current_sort == '3': # Nama A-Z
+            paket_list = sorted(paket_list, key=lambda p: p['nama'])
+            sort_label = "Nama (A-Z)"
+        elif current_sort == '4': # Kuota Sedikit
+            paket_list = sorted(paket_list, key=lambda p: p['kuota'])
+            sort_label = "Sisa Kuota (Sedikit)"
+        else:                     # Default: Harga Termurah
+            paket_list = sorted(paket_list, key=lambda p: p['harga'])
+            sort_label = "Harga (Termurah)"
+
+        # 4. Tampilkan HEADER & STATUS
+        rprint("--- [bold yellow]EKSPLORASI PAKET TRAVEL[/bold yellow] ---")
+        
+        # Tampilkan status filter aktif agar user tidak bingung
+        status_text = f"[dim]Filter: '{current_keyword if current_keyword else 'Semua'}' | Urutkan: {sort_label}[/dim]"
+        rprint(Panel(status_text, style="white",expand=False))
+
+        # 5. Tampilkan TABEL
+        if not paket_list:
+            rprint("\n[bold red]Tidak ada paket yang cocok dengan pencarian Anda.[/bold red]")
+        else:
+            table = Table(show_header=True, header_style="bold magenta", expand=False)
+            table.add_column("ID", style="cyan", width=8)
+            table.add_column("Nama Paket", style="green")
+            table.add_column("Harga (Rp)", style="blue", justify="right")
+            table.add_column("Kuota", justify="right")
+            
+            for paket in paket_list:
+                if paket['kuota'] > 0:
+                    table.add_row(
+                        paket['id_paket'],
+                        paket['nama'],
+                        f"{paket['harga']:,}",
+                        str(paket['kuota'])
+                    )
+            console.print(table)
+
+        # 6. Jika mode 'tunggu=False' (dipakai utk pilih paket saat beli), 
+        #    kita langsung keluar loop agar user bisa input ID di menu sebelumnya.
+        if not tunggu:
+            return True
+
+        # 7. MENU INTERAKTIF (Hanya muncul jika mode eksplorasi)
+        rprint("\n[bold cyan]Opsi Eksplorasi:[/bold cyan]")
+        rprint("[1] 🔍 Cari Nama (Filter)   [3] 🔄 Reset Filter")
+        rprint("[2] 🔃 Ganti Urutan (Sort)  [0] 🚪 Kembali ke Menu Utama")
+        
+        aksi = input("Pilihan: ").strip()
+
+        if aksi == '1':
+            # Update State Keyword
+            rprint("\nMasukkan kata kunci pencarian:")
+            current_keyword = input(">> ").strip().lower()
+            # Loop akan mengulang dan tabel akan ter-refresh otomatis!
+            
+        elif aksi == '2':
+            # Update State Sort
+            rprint("\n[1] Harga Termurah  [2] Harga Termahal")
+            rprint("[3] Nama (A-Z)      [4] Kuota Sedikit")
+            pilihan_sort = input(">> ").strip()
+            if pilihan_sort in ['1', '2', '3', '4']:
+                current_sort = pilihan_sort
+            
+        elif aksi == '3':
+            # Reset semua state ke default
+            current_keyword = ""
+            current_sort = '1'
+            rprint("[italic]Filter di-reset...[/italic]")
+            time.sleep(1)
+            
+        elif aksi == '0':
+            break # Keluar dari fungsi, kembali ke menu utama user
+            
+        else:
+            rprint("[red]Pilihan tidak valid[/red]")
+            time.sleep(0.5)
+
     return True
-
 def _lihat_detail_paket():
     """
     Menampilkan detail rundown dari satu paket.
