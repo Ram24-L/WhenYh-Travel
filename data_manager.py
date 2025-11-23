@@ -1,13 +1,8 @@
-# data_manager.py
-# Penanggung Jawab: Person A
-
 import json
 import os
-import uuid  # Kita akan pakai UUID untuk ID unik (lebih mudah dari sekuensial)
-import utils # Diperlukan untuk membuat admin default saat inisialisasi
+import uuid  
 
-# --- KONFIGURASI FILE PATH ---
-# Pastikan ada folder 'data/' di proyek Anda
+#inisialisasi q
 DATA_DIR = "data"
 USERS_FILE = os.path.join(DATA_DIR, "users.json")
 PACKAGES_FILE = os.path.join(DATA_DIR, "packages.json")
