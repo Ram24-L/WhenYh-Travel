@@ -122,7 +122,7 @@ def _generate_ticket_pdf(user, booking_data, paket):
         if os.path.exists(nama_file_qr):
             os.remove(nama_file_qr)
 
-
+# test
 # --- FITUR 2: SIMULASI PENDING PAYMENT (SAAT BELI) ---
 
 def _handle_pembayaran_simulasi(user, paket, jumlah_tiket, total_bayar):
