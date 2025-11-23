@@ -8,7 +8,7 @@
       "Hari 2: Bromo Sunrise Tour (Penanjakan, Kawah)",
       "Hari 3: Check-out, Wisata oleh-oleh"
     ],
-    "id_paket": "P-aaa111"
+    "id_paket": "1"
   },
   {
     "nama": "Liburan 5D4N Bali",
@@ -21,18 +21,18 @@
       "Hari 4: Pura Tanah Lot, Sunset di Kuta",
       "Hari 5: Check-out, Pusat oleh-oleh"
     ],
-    "id_paket": "P-bbb222"
+    "id_paket": "2"
   },
   {
     "nama": "Diving Wakatobi",
     "harga": 5000000,
-    "kuota": 12,
+    "kuota": 11,
     "rundown": [
       "Hari 1: Tiba di Wakatobi",
       "Hari 2: Diving Spot 1 & 2",
       "Hari 3: Diving Spot 3"
     ],
-    "id_paket": "P-ddd444"
+    "id_paket": "3"
   },
   {
     "nama": "Tektok Bromo 2D1N",
@@ -52,6 +52,6 @@
       "\"10:30 - 13:00: Perjalanan kembali ke meeting point (Malang/Surabaya).\",",
       "\"13:00: Tiba di meeting point, tour selesai.\""
     ],
-    "id_paket": "P-006f2c04"
+    "id_paket": "4"
   }
 ]

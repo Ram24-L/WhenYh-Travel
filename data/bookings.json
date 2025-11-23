@@ -40,5 +40,12 @@
     "jumlah_tiket": 2,
     "total_bayar": 5000000,
     "id_booking": "B-866ac52d"
+  },
+  {
+    "username_user": "nayla",
+    "id_paket": "P-ddd444",
+    "jumlah_tiket": 1,
+    "total_bayar": 5000000,
+    "id_booking": "B-ada2a6a9"
   }
 ]

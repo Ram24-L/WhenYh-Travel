@@ -1,7 +1,3 @@
-# user_menu.py
-# Penanggung Jawab: Person C
-# VERSI FINAL (Termasuk Pending Payment & Cetak PDF/QR/Email)
-
 import data_manager
 import utils
 import time
@@ -9,14 +5,12 @@ import os
 import webbrowser
 import urllib.parse
 
-# --- Import Library Eksternal ---
 from rich.console import Console
 from rich.table import Table
 from rich import print as rprint
 from rich.panel import Panel
 from rich.text import Text
 
-# --- Import Library PDF/QR ---
 try:
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import A4
@@ -27,20 +21,13 @@ except ImportError:
     LIBRARIES_LOADED = False
     # Jika gagal, program tetap jalan tapi fitur PDF/QR akan dinonaktifkan
 
-# Inisialisasi console dari rich
 console = Console()
 
-# =====================================================================
 # --- FITUR 1: CETAK TIKET PDF & BUKA EMAIL (SETELAH BAYAR) ---
-# =====================================================================
 
 def _buka_email_client(user, paket, nama_file_pdf):
-    """
-    (FITUR UNIK 2)
-    Membuka email client default user dengan data yang sudah terisi.
-    """
     try:
-        email_tujuan = user.get('email', '') # .get() agar aman jika 'email' tidak ada
+        email_tujuan = user.get('email', '')
         if not email_tujuan:
             rprint("[bold red]ERROR: Tidak dapat menemukan email Anda di data user.[/bold red]")
             return
@@ -88,16 +75,16 @@ def _generate_ticket_pdf(user, booking_data, paket):
     rprint(f"\n[bold yellow]Membuat tiket {nama_file_pdf}...[/bold yellow]")
     
     try:
-        # --- 1. Buat QR Code ---
+        #1. Buat QR Code
         qr_data = f"Booking ID: {booking_id}\nUser: {user['username']}\nPaket: {paket['nama']}"
         img_qr = qrcode.make(qr_data)
         img_qr.save(nama_file_qr)
 
-        # --- 2. Buat Halaman PDF ---
+        #2. Buat Halaman PDF
         c = canvas.Canvas(nama_file_pdf, pagesize=A4)
         width, height = A4
         
-        # --- 3. Tulis Teks ke PDF ---
+        #3. Tulis Teks ke PDF
         c.setFont("Helvetica-Bold", 18)
         c.drawCentredString(width / 2.0, height - (30*mm), "E-TIKET - WHEN YH TRAVEL")
         c.line(30*mm, height - (35*mm), width - (30*mm), height - (35*mm))
@@ -112,18 +99,18 @@ def _generate_ticket_pdf(user, booking_data, paket):
         c.drawString(30*mm, height - (65*mm), f"Jumlah      : {booking_data['jumlah_tiket']} tiket")
         c.drawString(30*mm, height - (70*mm), f"Total Bayar : Rp {booking_data['total_bayar']:,}")
 
-        # --- 4. Masukkan Gambar QR ke PDF ---
+        #4. Masukkan Gambar QR ke PDF
         c.drawImage(nama_file_qr, width - (70*mm), height - (70*mm), width=150, height=150)
         
         c.showPage()
         c.save()
 
-        # --- 5. Hapus file QR sementara ---
+        #5. Hapus file QR sementara
         os.remove(nama_file_qr)
         
         rprint(f"[bold green]SUKSES! Tiket telah disimpan sebagai '{nama_file_pdf}'[/bold green]")
         
-        # --- 6. Panggil Fitur Email ---
+        #6. Panggil Fitur Email
         rprint("[bold yellow]Membuka email client Anda...[/bold yellow]")
         time.sleep(1)
         _buka_email_client(user, paket, nama_file_pdf)
@@ -136,9 +123,7 @@ def _generate_ticket_pdf(user, booking_data, paket):
             os.remove(nama_file_qr)
 
 
-# =====================================================================
 # --- FITUR 2: SIMULASI PENDING PAYMENT (SAAT BELI) ---
-# =====================================================================
 
 def _handle_pembayaran_simulasi(user, paket, jumlah_tiket, total_bayar):
     """
