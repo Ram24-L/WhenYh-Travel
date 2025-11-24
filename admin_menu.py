@@ -1,18 +1,12 @@
-# admin_menu.py
-# Penanggung Jawab: Person B
 
 import data_manager
 import utils
 import time
-
-# # (WAJIB) Install library 'rich' ...
 from rich.console import Console
 from rich.table import Table
-from rich import print as rprint # Menggunakan print dari rich
-from rich.panel import Panel  # <--- TAMBAHKAN INI
-from rich.text import Text    # <--- TAMBAHKAN INI
-
-# Inisialisasi console dari rich
+from rich import print as rprint 
+from rich.panel import Panel  
+from rich.text import Text   
 console = Console()
 
 def _lihat_semua_paket(tunggu=True):

@@ -2,7 +2,6 @@ import json
 import os
 import uuid  
 
-#inisialisasi q
 DATA_DIR = "data"
 USERS_FILE = os.path.join(DATA_DIR, "users.json")
 PACKAGES_FILE = os.path.join(DATA_DIR, "packages.json")
@@ -65,14 +64,15 @@ def inisialisasi_data_files():
     # 2. Cek file user dan buat admin default
     if not os.path.exists(USERS_FILE):
         print("Membuat admin default...")
-        admin_pass = "admin" # Password default
+        admin_pass = "admin" 
         admin_hash = utils.hash_password(admin_pass)
         admin_user = {
             "username": "admin",
             "password_hash": admin_hash,
-            "role": "admin"
+            "role": "admin",
+            "email": "admin@travel.com" # <--- TAMBAHKAN EMAIL DUMMY INI
         }
-        _tulis_data(USERS_FILE, [admin_user]) # Simpan sebagai list
+        _tulis_data(USERS_FILE, [admin_user]) 
         print(f"Admin default dibuat -> User: admin, Pass: {admin_pass}")
         
     # 3. Buat file data lain jika belum ada (dengan list kosong)
