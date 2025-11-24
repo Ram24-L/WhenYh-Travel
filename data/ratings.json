@@ -1,9 +1,72 @@
 [
   {
-    "username_user": "Ramdhan",
-    "id_paket": "P-aaa111",
+    "username_user": "budi_santoso",
+    "id_paket": "P-BAJO99",
+    "skor": 5,
+    "komentar": "Phinisi-nya mewah banget! Crew ramah, makanan enak.",
+    "id_rating": "R-001"
+  },
+  {
+    "username_user": "siti_aminah",
+    "id_paket": "P-BRM01",
     "skor": 4,
-    "komentar": "Pengalamannya cukup menyenangkan",
-    "id_rating": "R-eac59399"
+    "komentar": "Pemandangan sunrise juara, tapi dinginnya minta ampun.",
+    "id_rating": "R-002"
+  },
+  {
+    "username_user": "ahmad_dhani",
+    "id_paket": "P-BALI88",
+    "skor": 5,
+    "komentar": "Private Villa-nya the best. Cocok buat healing.",
+    "id_rating": "R-003"
+  },
+  {
+    "username_user": "dewi_persik",
+    "id_paket": "P-JOG02",
+    "skor": 3,
+    "komentar": "Jogja macet parah pas weekend, tapi Malioboro ngangenin.",
+    "id_rating": "R-004"
+  },
+  {
+    "username_user": "eka_gustiwana",
+    "id_paket": "P-SRB01",
+    "skor": 4,
+    "komentar": "Murah meriah, airnya cukup jernih buat snorkeling.",
+    "id_rating": "R-005"
+  },
+  {
+    "username_user": "fajar_sadboy",
+    "id_paket": "P-RINJ01",
+    "skor": 5,
+    "komentar": "Lelah mendaki terbayar lunas pas sampai Segara Anak. Sadboy jadi Happyboy.",
+    "id_rating": "R-006"
+  },
+  {
+    "username_user": "gita_gutawa",
+    "id_paket": "P-BAJO99",
+    "skor": 5,
+    "komentar": "Sangat eksklusif. Komodo-nya besar sekali!",
+    "id_rating": "R-007"
+  },
+  {
+    "username_user": "hary_tanoe",
+    "id_paket": "P-BALI88",
+    "skor": 4,
+    "komentar": "Bagus, tapi driver penjemputan agak telat sedikit.",
+    "id_rating": "R-008"
+  },
+  {
+    "username_user": "indah_permatasari",
+    "id_paket": "P-DERA01",
+    "skor": 5,
+    "komentar": "Berenang sama ubur-ubur di Kakaban itu pengalaman seumur hidup!",
+    "id_rating": "R-009"
+  },
+  {
+    "username_user": "joko_anwar",
+    "id_paket": "P-RAJA01",
+    "skor": 5,
+    "komentar": "Surga dunia. Tidak ada kata lain. Wayag is majestic.",
+    "id_rating": "R-010"
   }
 ]

@@ -1,57 +1,142 @@
 [
   {
-    "nama": "Trip 3D2N Bromo",
+    "nama": "Open Trip 1D Pulau Seribu (Hemat)",
+    "harga": 350000,
+    "kuota": 45,
+    "rundown": ["Meeting Point Ancol", "Hopping Island (Kelor, Onrust, Cipir)", "Kembali ke Jakarta"],
+    "id_paket": "P-SRB01"
+  },
+  {
+    "nama": "Exclusive Labuan Bajo 4D3N Phinisi",
+    "harga": 12500000,
+    "kuota": 4,
+    "rundown": ["Airport Pickup", "Live on Board Phinisi Luxury", "Padar Island", "Komodo Island", "Pink Beach", "Manta Point"],
+    "id_paket": "P-BAJO99"
+  },
+  {
+    "nama": "Trip 3D2N Bromo Midnight",
     "harga": 1500000,
-    "kuota": 15,
-    "rundown": [
-      "Hari 1: Penjemputan di Malang, Cek-in hotel",
-      "Hari 2: Bromo Sunrise Tour (Penanjakan, Kawah)",
-      "Hari 3: Check-out, Wisata oleh-oleh"
-    ],
-    "id_paket": "1"
-  },
-  {
-    "nama": "Liburan 5D4N Bali",
-    "harga": 4500000,
-    "kuota": 14,
-    "rundown": [
-      "Hari 1: Penjemputan di Airport, Cek-in",
-      "Hari 2: Watersport Tanjung Benoa",
-      "Hari 3: Tour Kintamani & Desa Penglipuran",
-      "Hari 4: Pura Tanah Lot, Sunset di Kuta",
-      "Hari 5: Check-out, Pusat oleh-oleh"
-    ],
-    "id_paket": "2"
-  },
-  {
-    "nama": "Diving Wakatobi",
-    "harga": 5000000,
-    "kuota": 11,
-    "rundown": [
-      "Hari 1: Tiba di Wakatobi",
-      "Hari 2: Diving Spot 1 & 2",
-      "Hari 3: Diving Spot 3"
-    ],
-    "id_paket": "3"
-  },
-  {
-    "nama": "Tektok Bromo 2D1N",
-    "harga": 2500000,
     "kuota": 18,
-    "rundown": [
-      "\"23:00 - 00:00: Penjemputan di meeting point (Malang/Surabaya).\",",
-      "\"00:00 - 02:30: Perjalanan menuju rest area Bromo (Sukapura/Cemoro Lawang).\",",
-      "\"02:30 - 03:00: Tiba di rest area, transfer ke armada Jeep 4x4.\",",
-      "\"03:00 - 04:00: Perjalanan menuju Puncak Penanjakan 1 (Viewpoint Sunrise).\",",
-      "\"04:00 - 06:00: Menikmati Bromo Sunrise.\",",
-      "\"06:00 - 07:00: Turun ke Lautan Pasir, berhenti di Pura Luhur Poten.\",",
-      "\"07:00 - 08:00: Mendaki Kawah Bromo (jalan kaki atau sewa kuda).\",",
-      "\"08:00 - 09:00: Mengunjungi Pasir Berbisik.\",",
-      "\"09:00 - 09:30: Mengunjungi Bukit Teletubbies (Padang Savana).\",",
-      "\"09:30 - 10:30: Kembali ke rest area, bersih-bersih, sarapan (opsional).\",",
-      "\"10:30 - 13:00: Perjalanan kembali ke meeting point (Malang/Surabaya).\",",
-      "\"13:00: Tiba di meeting point, tour selesai.\""
-    ],
-    "id_paket": "4"
+    "rundown": ["Jemput Malang", "Sunrise Penanjakan", "Kawah Bromo", "Pasir Berbisik", "Oleh-oleh"],
+    "id_paket": "P-BRM01"
+  },
+  {
+    "nama": "Explore Jogja 2D1N Backpacker",
+    "harga": 850000,
+    "kuota": 2,
+    "rundown": ["Candi Borobudur", "Lava Tour Merapi", "Malioboro Night", "Keraton Jogja"],
+    "id_paket": "P-JOG02"
+  },
+  {
+    "nama": "Adventure Semeru Hiking 4D3N",
+    "harga": 2750000,
+    "kuota": 0,
+    "rundown": ["Basecamp Ranu Pani", "Ranu Kumbolo Camp", "Summit Attack Mahameru", "Turun Gunung"],
+    "id_paket": "P-SMR05"
+  },
+  {
+    "nama": "Honeymoon Bali 5D4N Private Villa",
+    "harga": 8900000,
+    "kuota": 5,
+    "rundown": ["Floating Breakfast", "Sunset Dinner Jimbaran", "Ubud Tour", "Nusa Penida Private Tour", "Spa Treatment"],
+    "id_paket": "P-BALI88"
+  },
+  {
+    "nama": "Wisata Dieng Culture Festival",
+    "harga": 1100000,
+    "kuota": 20,
+    "rundown": ["Kawah Sikidang", "Candi Arjuna", "Bukit Sikunir Sunrise", "Telaga Warna"],
+    "id_paket": "P-DIENG1"
+  },
+  {
+    "nama": "Diving Wakatobi 5D4N (License Required)",
+    "harga": 7500000,
+    "kuota": 6,
+    "rundown": ["Check Dive", "Coral Garden", "Roma Point", "Cornucopia", "Night Dive (Optional)"],
+    "id_paket": "P-WKT01"
+  },
+  {
+    "nama": "Family Trip Bandung 2D1N",
+    "harga": 1800000,
+    "kuota": 10,
+    "rundown": ["Farmhouse Lembang", "Floating Market", "Kawah Putih Ciwidey", "Kartika Sari"],
+    "id_paket": "P-BDG04"
+  },
+  {
+    "nama": "Solo Traveling Sumba 5D4N",
+    "harga": 5200000,
+    "kuota": 8,
+    "rundown": ["Desa Adat Ratenggaro", "Danau Weekuri", "Pantai Walakiri (Dancing Trees)", "Bukit Wairinding"],
+    "id_paket": "P-SUMBA1"
+  },
+  {
+    "nama": "Camping Ceria Ranca Upas",
+    "harga": 450000,
+    "kuota": 30,
+    "rundown": ["Penangkaran Rusa", "Setup Tenda", "BBQ Night", "Sunrise Situ Patenggang"],
+    "id_paket": "P-CMP01"
+  },
+  {
+    "nama": "Raja Ampat Wayag & Piaynemo 4D3N",
+    "harga": 15000000,
+    "kuota": 2,
+    "rundown": ["Sorong - Waisai", "Puncak Wayag 1 & 2", "Laguna Bintang", "Piaynemo View", "Arborek Snorkeling"],
+    "id_paket": "P-RAJA01"
+  },
+  {
+    "nama": "Tour Belitung Laskar Pelangi 3D2N",
+    "harga": 2100000,
+    "kuota": 12,
+    "rundown": ["Pantai Tanjung Tinggi", "Replika SD Laskar Pelangi", "Museum Kata", "Danau Kaolin"],
+    "id_paket": "P-BELIT1"
+  },
+  {
+    "nama": "Pendakian Gunung Rinjani via Sembalun",
+    "harga": 3200000,
+    "kuota": 15,
+    "rundown": ["Registrasi Sembalun", "Plawangan Sembalun", "Summit Attack", "Danau Segara Anak"],
+    "id_paket": "P-RINJ01"
+  },
+  {
+    "nama": "City Tour Jakarta (Monas & Kota Tua)",
+    "harga": 150000,
+    "kuota": 50,
+    "rundown": ["Monas", "Museum Nasional", "Kota Tua Fatahillah", "Pelabuhan Sunda Kelapa"],
+    "id_paket": "P-JKT01"
+  },
+  {
+    "nama": "Karimunjawa Hopping Island 3D2N",
+    "harga": 1650000,
+    "kuota": 14,
+    "rundown": ["Penyeberangan Jepara", "Snorkeling Menjangan Kecil", "Pantai Tanjung Gelam", "Penangkaran Hiu"],
+    "id_paket": "P-KRIM01"
+  },
+  {
+    "nama": "Medan - Danau Toba - Samosir 3D2N",
+    "harga": 2400000,
+    "kuota": 8,
+    "rundown": ["Istana Maimun", "Parapat", "Ferry ke Samosir", "Batu Gantung", "Air Terjun Sipiso-piso"],
+    "id_paket": "P-MDN01"
+  },
+  {
+    "nama": "Surabaya Bromo Ijen (Blue Fire) 3D2N",
+    "harga": 2100000,
+    "kuota": 10,
+    "rundown": ["Jemput Surabaya", "Bromo Sunrise", "Transfer Bondowoso", "Ijen Midnight Hike Blue Fire"],
+    "id_paket": "P-IJEN01"
+  },
+  {
+    "nama": "Derawan & Maratua Paradise 4D3N",
+    "harga": 4800000,
+    "kuota": 6,
+    "rundown": ["Berau - Derawan", "Maratua Paradise", "Kakaban (Jellyfish Lake)", "Sangalaki (Manta)"],
+    "id_paket": "P-DERA01"
+  },
+  {
+    "nama": "Ziarah Wali Songo 5D4N (Bus)",
+    "harga": 1200000,
+    "kuota": 40,
+    "rundown": ["Start Jawa Timur", "Sunan Ampel", "Sunan Gresik", "Sunan Bonang", "Lanjut Jawa Tengah", "Sunan Kalijaga", "Gunung Jati"],
+    "id_paket": "P-WALI01"
   }
 ]

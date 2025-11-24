@@ -1,51 +1,72 @@
 [
   {
-    "username_user": "Ramdhan",
-    "id_paket": "P-aaa111",
+    "username_user": "budi_santoso",
+    "id_paket": "P-BAJO99",
     "jumlah_tiket": 2,
-    "total_bayar": 3000000,
-    "id_booking": "B-xyz111"
+    "total_bayar": 25000000,
+    "id_booking": "B-001"
   },
   {
-    "username_user": "Ramdhan",
-    "id_paket": "P-bbb222",
+    "username_user": "siti_aminah",
+    "id_paket": "P-BRM01",
+    "jumlah_tiket": 4,
+    "total_bayar": 6000000,
+    "id_booking": "B-002"
+  },
+  {
+    "username_user": "ahmad_dhani",
+    "id_paket": "P-BALI88",
     "jumlah_tiket": 1,
-    "total_bayar": 4500000,
-    "id_booking": "B-xyz222"
+    "total_bayar": 8900000,
+    "id_booking": "B-003"
   },
   {
-    "username_user": "Vibecoder",
-    "id_paket": "P-ccc333",
+    "username_user": "dewi_persik",
+    "id_paket": "P-JOG02",
+    "jumlah_tiket": 2,
+    "total_bayar": 1700000,
+    "id_booking": "B-004"
+  },
+  {
+    "username_user": "eka_gustiwana",
+    "id_paket": "P-SRB01",
+    "jumlah_tiket": 10,
+    "total_bayar": 3500000,
+    "id_booking": "B-005"
+  },
+  {
+    "username_user": "fajar_sadboy",
+    "id_paket": "P-RINJ01",
     "jumlah_tiket": 1,
-    "total_bayar": 950000,
-    "id_booking": "B-xyz333"
+    "total_bayar": 3200000,
+    "id_booking": "B-006"
   },
   {
-    "username_user": "Ramdhan",
-    "id_paket": "P-ccc333",
+    "username_user": "gita_gutawa",
+    "id_paket": "P-BAJO99",
     "jumlah_tiket": 1,
-    "total_bayar": 950000,
-    "id_booking": "B-827e3733"
+    "total_bayar": 12500000,
+    "id_booking": "B-007"
   },
   {
-    "username_user": "nayla",
-    "id_paket": "P-aaa111",
+    "username_user": "hary_tanoe",
+    "id_paket": "P-BALI88",
     "jumlah_tiket": 3,
-    "total_bayar": 4500000,
-    "id_booking": "B-4d143a0e"
+    "total_bayar": 26700000,
+    "id_booking": "B-008"
   },
   {
-    "username_user": "Ramdhan",
-    "id_paket": "P-006f2c04",
+    "username_user": "indah_permatasari",
+    "id_paket": "P-DERA01",
     "jumlah_tiket": 2,
-    "total_bayar": 5000000,
-    "id_booking": "B-866ac52d"
+    "total_bayar": 9600000,
+    "id_booking": "B-009"
   },
   {
-    "username_user": "nayla",
-    "id_paket": "P-ddd444",
-    "jumlah_tiket": 1,
-    "total_bayar": 5000000,
-    "id_booking": "B-ada2a6a9"
+    "username_user": "joko_anwar",
+    "id_paket": "P-RAJA01",
+    "jumlah_tiket": 2,
+    "total_bayar": 30000000,
+    "id_booking": "B-010"
   }
 ]

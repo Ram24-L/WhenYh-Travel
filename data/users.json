@@ -2,36 +2,73 @@
   {
     "username": "admin",
     "password_hash": "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
-    "role": "admin"
+    "role": "admin",
+    "email": "admin@whenyh.com"
+  },
+  {
+    "username": "budi_santoso",
+    "password_hash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "email": "budi@test.com"
+  },
+  {
+    "username": "siti_aminah",
+    "password_hash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "email": "siti@test.com"
+  },
+  {
+    "username": "ahmad_dhani",
+    "password_hash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "email": "ahmad@test.com"
+  },
+  {
+    "username": "dewi_persik",
+    "password_hash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "email": "dewi@test.com"
+  },
+  {
+    "username": "eka_gustiwana",
+    "password_hash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "email": "eka@test.com"
+  },
+  {
+    "username": "fajar_sadboy",
+    "password_hash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "email": "fajar@test.com"
+  },
+  {
+    "username": "gita_gutawa",
+    "password_hash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "email": "gita@test.com"
+  },
+  {
+    "username": "hary_tanoe",
+    "password_hash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "email": "hary@test.com"
+  },
+  {
+    "username": "indah_permatasari",
+    "password_hash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "email": "indah@test.com"
+  },
+  {
+    "username": "joko_anwar",
+    "password_hash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+    "role": "user",
+    "email": "joko@test.com"
   },
   {
     "username": "Ramdhan",
     "password_hash": "3fd83e3c607f8233c429e1e5d60a7ef5c2b515ec5236e89d77aeba9ed29dd0cf",
-    "role": "user"
-  },
-  {
-    "username": "Vibecoder",
-    "password_hash": "d60771db3c0e075ac8d6cefa42aaca15f50871affacee2aafef4efea849f11b7",
-    "role": "user"
-  },
-  {
-    "username": "t",
-    "password_hash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-    "role": "user"
-  },
-  {
-    "username": "nayla",
-    "password_hash": "8b379774d9b92e8fd3909653e9d781115fca7a997f9907982ed10eaa0647074e",
-    "role": "user"
-  },
-  {
-    "username": "MyKisah",
-    "password_hash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-    "role": "user"
-  },
-  {
-    "username": "ramdhan",
-    "password_hash": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
-    "role": "user"
+    "role": "user",
+    "email": "ramdhan@gmail.com"
   }
 ]
