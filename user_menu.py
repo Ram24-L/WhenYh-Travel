@@ -2,8 +2,7 @@ import data_manager
 import utils
 import time
 import os
-import webbrowser
-import urllib.parse
+import datetime
 
 from rich.console import Console
 from rich.table import Table
@@ -11,158 +10,223 @@ from rich import print as rprint
 from rich.panel import Panel
 from rich.text import Text
 
-# Hanya import library PDF (tanpa QR Code)
 try:
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.units import mm
+    from reportlab.lib import colors
+    from reportlab.lib.colors import Color
+    from reportlab.lib.utils import ImageReader
+    import qrcode
     LIBRARIES_LOADED = True
 except ImportError:
     LIBRARIES_LOADED = False
 
 console = Console()
 
-# =====================================================================
-# --- FITUR 1: CETAK TIKET PDF & BUKA EMAIL (SETELAH BAYAR)
-# =====================================================================
-
-def _buka_email_client(user, paket, nama_file_pdf):
-    try:
-        email_tujuan = user.get('email', '')
-        if not email_tujuan:
-            rprint("[bold red]ERROR: Tidak dapat menemukan email Anda di data user.[/bold red]")
-            return
-
-        subjek = f"Tiket Anda untuk {paket['nama']} (ID: {paket['id_paket']})"
-        isi_email = (
-            f"Halo {user['username']},\n\n"
-            f"Terima kasih telah memesan paket {paket['nama']}!\n\n"
-            f"Tiket Anda (format PDF) ada di file '{nama_file_pdf}'.\n"
-            "Silakan lampirkan file tersebut saat menyimpan.\n\n"
-            "Terima kasih,\n"
-            "When Yh Travel"
-        )
-        
-        url_email = f"mailto:{email_tujuan}" \
-                    f"?subject={urllib.parse.quote(subjek)}" \
-                    f"&body={urllib.parse.quote(isi_email)}"
-
-        webbrowser.open(url_email)
-        
-        rprint(f"\n[italic]Silakan periksa browser atau aplikasi email Anda.[/italic]")
-        rprint(f"[bold]Jangan lupa lampirkan file:[/bold] {nama_file_pdf}")
-        input("\nTekan Enter untuk melanjutkan...")
-
-    except Exception as e:
-        rprint(f"[bold red]Gagal membuka email client: {e}[/bold red]")
-        time.sleep(2)
-
-
 def _generate_ticket_pdf(user, booking_data, paket):
-    """
-    Membuat file PDF tiket TANPA QR CODE.
-    """
-
     if not LIBRARIES_LOADED:
-        rprint("\n[bold red]ERROR: Library 'reportlab' tidak terinstal.[/bold red]")
-        rprint("[italic]Fitur cetak PDF tidak aktif.[/italic]")
-        time.sleep(3)
+        rprint("\n[bold red]ERROR: Library 'reportlab', 'Pillow' atau 'qrcode' tidak terinstal.[/bold red]")
+        console.input("Tekan [bold]Enter[/bold] untuk lanjut...")
         return
 
-    booking_id = booking_data['id_booking']
-    nama_file_pdf = f"tiket_{booking_id}.pdf"
+    today_str = datetime.date.today().strftime("%Y-%m-%d")
+    base_folder = "tiket_output"
+    target_folder = os.path.join(base_folder, today_str)
+    logo_path = os.path.join("data", "logo.jpg")
 
-    rprint(f"\n[bold yellow]Membuat tiket {nama_file_pdf}...[/bold yellow]")
+    if not os.path.exists(target_folder):
+        os.makedirs(target_folder)
+
+    booking_id = booking_data['id_booking']
+    nama_file = f"Tiket_{booking_id}.pdf"
+    file_path = os.path.join(target_folder, nama_file)
+    temp_qr_path = f"temp_qr_{booking_id}.png"
+
+    rprint(f"\n[bold yellow]Sedang mendesain tiket konsep baru...[/bold yellow]")
 
     try:
-        c = canvas.Canvas(nama_file_pdf, pagesize=A4)
+        brand_navy = Color(0.05, 0.15, 0.35)
+        text_dark = Color(0.2, 0.2, 0.2)
+
+        qr_content = f"BOOKING:{booking_id}|USER:{user['username']}|PAKET:{paket['id_paket']}"
+        qr = qrcode.make(qr_content)
+        qr.save(temp_qr_path)
+
+        c = canvas.Canvas(file_path, pagesize=A4)
         width, height = A4
         
-        # Judul
-        c.setFont("Helvetica-Bold", 18)
-        c.drawCentredString(width / 2.0, height - (30*mm), "E-TIKET - WHEN YH TRAVEL")
-        c.line(30*mm, height - (35*mm), width - (30*mm), height - (35*mm))
+        logo_width = 60*mm
+        logo_height = 20*mm
+        logo_x = (width - logo_width) / 2
+        logo_y = height - logo_height - 10*mm
 
-        # Isi Data
+        if os.path.exists(logo_path):
+            try:
+                logo_img = ImageReader(logo_path)
+                c.drawImage(logo_img, logo_x, logo_y, width=logo_width, height=logo_height, mask='auto')
+            except Exception as e:
+                 rprint(f"[yellow]Warning: Gagal memuat logo.png: {e}[/yellow]")
+
+        subtitle_y = logo_y - 10*mm
+        c.setFillColor(text_dark)
         c.setFont("Helvetica", 12)
-        c.drawString(30*mm, height - (45*mm), f"Booking ID  : {booking_id}")
-        c.drawString(30*mm, height - (50*mm), f"Nama User   : {user['username']}")
+        c.drawCentredString(width / 2, subtitle_y, "E-Ticket Resmi & Bukti Perjalanan")
 
-        c.setFont("Helvetica-Bold", 14)
-        c.drawString(30*mm, height - (60*mm), f"Paket: {paket['nama']}")
+        main_line_y = subtitle_y - 8*mm
+        c.setStrokeColor(brand_navy)
+        c.setLineWidth(2)
+        c.line(20*mm, main_line_y, width - 20*mm, main_line_y)
+        c.setLineWidth(1)
+
+
+        y_pos = main_line_y - 15*mm
         
-        c.setFont("Helvetica", 12)
-        c.drawString(30*mm, height - (65*mm), f"Jumlah      : {booking_data['jumlah_tiket']} tiket")
-        c.drawString(30*mm, height - (70*mm), f"Total Bayar : Rp {booking_data['total_bayar']:,}")
+        c.setFillColor(text_dark)
 
-        c.showPage()
+        c.setFillColor(brand_navy)
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(20*mm, y_pos, "DETAIL PEMESAN:")
+        
+        c.setFillColor(text_dark)
+        c.setFont("Helvetica", 11)
+        c.drawString(20*mm, y_pos - 8*mm,  f"Booking ID     :  {booking_id}")
+        c.drawString(20*mm, y_pos - 16*mm, f"Nama User      :  {user['username'].upper()}")
+        c.drawString(20*mm, y_pos - 24*mm, f"Email          :  {user.get('email', '-')}")
+        c.drawString(20*mm, y_pos - 32*mm, f"Tanggal Cetak  :  {today_str}")
+
+        c.setFillColor(brand_navy)
+        c.setFont("Helvetica-Bold", 12)
+        c.drawString(110*mm, y_pos, "DETAIL PAKET:")
+        
+        c.setFillColor(text_dark)
+        c.setFont("Helvetica", 11)
+        c.drawString(110*mm, y_pos - 8*mm,  f"Paket        :  {paket['nama']}")
+        c.drawString(110*mm, y_pos - 16*mm, f"Jumlah Tiket :  {booking_data['jumlah_tiket']} Pax")
+        
+        c.setFont("Helvetica-Bold", 11)
+        c.setFillColor(brand_navy)
+        c.drawString(110*mm, y_pos - 24*mm, f"Total Bayar  :  Rp {booking_data['total_bayar']:,}")
+
+        y_rundown_start = y_pos - 55*mm
+
+        c.setFillColor(brand_navy)
+        c.setFont("Helvetica-Bold", 14)
+        c.drawString(20*mm, y_rundown_start, "RUNDOWN PERJALANAN:")
+        
+        qr_x_pos = 130*mm
+        qr_size = 45*mm
+        qr_y_pos = y_rundown_start - qr_size + 10*mm
+        
+        c.drawImage(temp_qr_path, qr_x_pos, qr_y_pos- 3*mm, width=qr_size, height=qr_size)
+        
+        c.setFillColor(text_dark)
+        c.setFont("Helvetica", 9)
+        c.drawCentredString(qr_x_pos + (qr_size/2), qr_y_pos - 5*mm, "Scan untuk Validasi Petugas")
+
+        y_list = y_rundown_start - 10*mm
+        c.setFillColor(text_dark)
+        c.setFont("Helvetica", 11)
+        
+        if paket['rundown']:
+            for i, item in enumerate(paket['rundown'], 1):
+                text = f"{i}. {item}"
+                if len(text) > 60: text = text[:60] + "..."
+                
+                c.drawString(25*mm, y_list, text)
+                y_list -= 8*mm 
+                
+                if y_list < 20*mm:
+                    c.showPage()
+                    y_list = height - 30*mm
+                    c.setFont("Helvetica", 11)
+        else:
+            c.drawString(25*mm, y_list, "Informasi rundown tidak tersedia.")
+
+        c.setFont("Helvetica-Oblique", 8)
+        c.setFillColor(colors.grey)
+        c.drawCentredString(width/2, 15*mm, "Dokumen ini diterbitkan secara elektronik oleh sistem When Yh Travel dan sah tanpa tanda tangan basah.")
+
         c.save()
 
-        rprint(f"[bold green]SUKSES! Tiket disimpan sebagai '{nama_file_pdf}'[/bold green]")
+        if os.path.exists(temp_qr_path):
+            os.remove(temp_qr_path)
 
-        # Buka email
-        rprint("[bold yellow]Membuka email client...[/bold yellow]")
-        time.sleep(1)
-        _buka_email_client(user, paket, nama_file_pdf)
+        email_user = user.get('email', '[Email tidak terdaftar]')
+        
+        rprint(Panel(f"""
+[bold green]PEMBAYARAN SUKSES & TIKET TERCETAK![/bold green]
+
+Terima kasih, [bold]{user['username']}[/bold].
+E-Ticket Anda telah berhasil diterbitkan dengan konsep baru.
+
+[bold yellow]INFO:[/bold yellow]
+File tiket juga akan dikirimkan ke email: [cyan u]{email_user}[/cyan u]
+Silakan cek Inbox/Spam Anda.
+        """, title="Transaksi Berhasil", border_style="green"))
+
+        console.input("\nTekan [bold]Enter[/bold] untuk kembali ke menu utama...")
 
     except Exception as e:
-        rprint(f"\n[bold red]ERROR: Gagal membuat tiket PDF.[/bold red]")
-        rprint(f"[italic]Detail: {e}[/italic]")
-        time.sleep(3)
-
-
-# =====================================================================
-# --- FITUR 2: SIMULASI PEMBAYARAN (TANPA QRIS)
-# =====================================================================
+        rprint(f"\n[bold red]ERROR: Gagal mendesain tiket PDF.[/bold red]")
+        rprint(f"[italic]Detail error: {e}[/italic]")
+        console.input("\nTekan [bold]Enter[/bold] untuk lanjut...")
+        if os.path.exists(temp_qr_path):
+            os.remove(temp_qr_path)
 
 def _handle_pembayaran_simulasi(user, paket, jumlah_tiket, total_bayar):
-
     utils.bersihkan_layar()
     rprint("--- [bold yellow]SIMULASI PAYMENT GATEWAY[/bold yellow] ---")
     rprint(f"Paket         : [green]{paket['nama']}[/green]")
     rprint(f"Total Tagihan : [blue]Rp {total_bayar:,}[/blue]")
 
-    rprint("\nSilakan pilih metode pembayaran:")
-    rprint("[1] Virtual Account (Simulasi)")
-    rprint("[2] Batal")
+    while True:
+        rprint("\nSilakan pilih metode pembayaran:")
+        rprint("[1] Virtual Account (Simulasi)")
+        rprint("[2] Batal")
 
-    pilihan = input("Pilihan: ").strip()
+        pilihan = console.input("Pilihan ([bold]1[/bold]/[bold]2[/bold]): ").strip()
 
-    if pilihan == '1':
-        utils.bersihkan_layar()
-        va_number = f"8808{user['username'].encode().hex()[:8]}"
-        rprint(f"Virtual Account: [bold]{va_number}[/bold]")
-        rprint(f"Total: [blue]Rp {total_bayar:,}[/blue]")
-        rprint("\n[italic]Tunggu pembayaran Anda...[/italic]")
+        if pilihan == '1':
+            utils.bersihkan_layar()
+            va_number = f"8808{user['username'].encode().hex()[:8]}"
+            
+            rprint(Panel(f"""
+[bold]Bank Transfer (Virtual Account)[/bold]
+Nomor VA : [cyan]{va_number}[/cyan]
+Total    : [blue]Rp {total_bayar:,}[/blue]
 
-        konfirmasi_bayar = input("Ketik 'bayar' jika sudah membayar: ").strip().lower()
-        return konfirmasi_bayar == "bayar"
+[italic]Silakan lakukan transfer ke nomor di atas...[/italic]
+            """, title="Payment Info", border_style="blue"))
+            
+            while True:
+                konfirmasi = console.input("\nKetik '[bold green]bayar[/bold green]' untuk menyelesaikan: ").strip().lower()
+                if konfirmasi == 'bayar':
+                    return True
+                elif konfirmasi == 'batal':
+                     rprint("[yellow]Pembayaran dibatalkan user.[/yellow]")
+                     return False
+                else:
+                     rprint("[red]Perintah tidak dikenal. Ketik 'bayar' atau 'batal'.[/red]")
 
-    return False  # Jika batal
-
-
-# =====================================================================
-# --- MENU USER: LIHAT PAKET, SEARCH, SORT
-# =====================================================================
+        elif pilihan == '2':
+            rprint("\n[yellow]Pembayaran dibatalkan.[/yellow]")
+            time.sleep(1)
+            return False
+        else:
+            rprint("[bold red]Pilihan tidak valid! Masukkan angka 1 atau 2.[/bold red]")
 
 def _lihat_semua_paket(tunggu=True):
-    """
-    Dashboard interaktif untuk search & sort.
-    """
-
     current_keyword = ""
     current_sort = '1'
 
     while True:
         utils.bersihkan_layar()
-
         paket_list = data_manager.dapatkan_semua_paket()
 
-        # FILTER
         if current_keyword:
             paket_list = [p for p in paket_list if current_keyword in p['nama'].lower()]
 
-        # SORTING
         if current_sort == '2':   
             paket_list = sorted(paket_list, key=lambda p: p['harga'], reverse=True)
             sort_label = "Harga (Termahal)"
@@ -186,16 +250,17 @@ def _lihat_semua_paket(tunggu=True):
         table.add_column("Harga (Rp)", style="blue")
         table.add_column("Kuota", justify="right")
 
-        for p in paket_list:
-            if p['kuota'] > 0:
-                table.add_row(p['id_paket'], p['nama'], f"{p['harga']:,}", str(p['kuota']))
-
-        console.print(table)
+        if not paket_list:
+             rprint("[red]Tidak ada paket yang sesuai.[/red]")
+        else:
+            for p in paket_list:
+                if p['kuota'] > 0:
+                    table.add_row(p['id_paket'], p['nama'], f"{p['harga']:,}", str(p['kuota']))
+            console.print(table)
 
         if not tunggu:
             return True
 
-        # Menu eksplorasi
         rprint("\n[bold cyan]Opsi:[/bold cyan]")
         rprint("[1] Cari Nama  [3] Reset")
         rprint("[2] Sorting    [0] Kembali")
@@ -204,31 +269,22 @@ def _lihat_semua_paket(tunggu=True):
 
         if aksi == '1':
             current_keyword = input("Masukkan kata kunci: ").strip().lower()
-
         elif aksi == '2':
             rprint("\n[1] Termurah  [2] Termahal  [3] Nama A-Z  [4] Kuota Sedikit")
             pilih = input(">> ").strip()
-            if pilih in ['1', '2', '3', '4']:
-                current_sort = pilih
-
+            if pilih in ['1', '2', '3', '4']: current_sort = pilih
         elif aksi == '3':
             current_keyword = ""
             current_sort = '1'
-            time.sleep(1)
-
+            time.sleep(0.5)
         elif aksi == '0':
             break
 
     return True
 
-
-# =====================================================================
-# --- DETAIL PAKET
-# =====================================================================
-
 def _lihat_detail_paket():
     utils.bersihkan_layar()
-    rprint("--- [bold yellow]DETAIL PAKET[/bold yellow] ---")
+    rprint("--- [bold yellow]DETAIL, RUNDOWN & ULASAN[/bold yellow] ---")
 
     if not _lihat_semua_paket(tunggu=False):
         return
@@ -237,36 +293,47 @@ def _lihat_detail_paket():
     paket = data_manager.dapatkan_paket_by_id(id_paket)
 
     if not paket:
-        rprint("[red]ID paket tidak ditemukan.[/red]")
+        rprint(f"\n[bold red]ERROR: ID Paket '{id_paket}' tidak ditemukan.[/bold red]")
         time.sleep(2)
         return
 
     utils.bersihkan_layar()
-    rundown_text = Text()
-
-    if paket['rundown']:
-        for i, item in enumerate(paket['rundown'], 1):
-            rundown_text.append(f"{i}. {item}\n")
-    else:
-        rundown_text.append("[italic]Rundown tidak tersedia.[/italic]")
-
+    list_rating = data_manager.dapatkan_rating_by_paket(id_paket)
+    
     panel_content = Text()
     panel_content.append(f"ID Paket: {paket['id_paket']}\n", style="cyan")
-    panel_content.append(f"Harga: Rp {paket['harga']:,}\n", style="blue")
-    panel_content.append(f"Kuota: {paket['kuota']}\n\n", style="bold")
-    panel_content.append("--- RUNDOWN ---\n", style="yellow")
-    panel_content.append(rundown_text)
+    panel_content.append(f"Harga   : Rp {paket['harga']:,}\n", style="blue")
+    
+    panel_content.append("Rating  : ", style="bold")
+    if list_rating:
+        rata_rata = sum(r['skor'] for r in list_rating) / len(list_rating)
+        bintang = "★" * int(rata_rata) + "☆" * (5 - int(rata_rata))
+        panel_content.append(f"{bintang}", style="yellow")
+        panel_content.append(f" ({rata_rata:.1f}/5.0)\n")
+    else:
+        panel_content.append("Belum ada ulasan.\n", style="italic dim")
 
-    console.print(Panel(panel_content, title=paket['nama'], border_style="yellow"))
-    input("\nTekan Enter...")
+    panel_content.append(f"Sisa Kuota: {paket['kuota']} orang\n\n", style="bold")
+    
+    panel_content.append("--- RUNDOWN PERJALANAN ---\n", style="bold yellow")
+    if paket['rundown']:
+        for i, item in enumerate(paket['rundown'], 1):
+            panel_content.append(f"  {i}. {item}\n")
+    else:
+        panel_content.append("[italic]Rundown tidak tersedia.[/italic]\n")
 
+    if list_rating:
+        panel_content.append("\n--- APA KATA MEREKA? ---\n", style="bold cyan")
+        for r in list_rating[-3:]: 
+            user_sensor = r['username_user'][:3] + "***"
+            panel_content.append(f"👤 {user_sensor} : ")
+            panel_content.append(f"{r['skor']}★\n", style="yellow")
+            panel_content.append(f"   \"{r['komentar']}\"\n\n", style="italic")
 
-# =====================================================================
-# --- BELI TIKET
-# =====================================================================
+    console.print(Panel(panel_content, title=f"[bold green]{paket['nama']}[/bold green]", border_style="yellow"))
+    input("\nTekan Enter untuk kembali...")
 
 def _beli_tiket(user):
-
     utils.bersihkan_layar()
     rprint("--- [bold yellow]BELI TIKET[/bold yellow] ---")
 
@@ -286,12 +353,10 @@ def _beli_tiket(user):
         time.sleep(2)
         return
 
-    # Jumlah tiket
     while True:
         try:
             jumlah = int(input(f"Jumlah tiket (maks {paket['kuota']}): "))
-            if 1 <= jumlah <= paket['kuota']:
-                break
+            if 1 <= jumlah <= paket['kuota']: break
             rprint("[red]Jumlah tidak valid.[/red]")
         except:
             rprint("[red]Masukkan angka.[/red]")
@@ -299,47 +364,40 @@ def _beli_tiket(user):
     total = paket['harga'] * jumlah
 
     utils.bersihkan_layar()
-    rprint("--- [bold yellow]KONFIRMASI[/bold yellow] ---")
-    rprint(f"Paket: {paket['nama']}")
-    rprint(f"Jumlah: {jumlah}")
-    rprint(f"Total Bayar: Rp {total:,}")
+    rprint(Panel(f"""
+[bold]Konfirmasi Pesanan[/bold]
+Paket  : {paket['nama']}
+Jumlah : {jumlah} Pax
+Harga  : Rp {total:,}
+    """, style="green"))
 
-    if input("Lanjut beli? (y/n): ").strip().lower() != 'y':
-        return
+    while True:
+        konfirmasi = console.input("\nLanjut pembayaran? ([bold green]y[/bold green]/[bold red]n[/bold red]): ").strip().lower()
+        if konfirmasi == 'y': break 
+        elif konfirmasi == 'n':
+            rprint("\n[yellow]Transaksi dibatalkan.[/yellow]")
+            time.sleep(1); return
+        else: rprint("[red]Ketik 'y' atau 'n'.[/red]")
 
-    # Proses pembayaran
     sukses = _handle_pembayaran_simulasi(user, paket, jumlah, total)
 
     if not sukses:
-        rprint("[red]Pembayaran gagal/batal.[/red]")
-        time.sleep(2)
         return
 
-    # Simpan booking
     booking_data = {
         "username_user": user['username'],
         "id_paket": id_paket,
         "jumlah_tiket": jumlah,
         "total_bayar": total
     }
-
     booking_saved = data_manager.simpan_booking_baru(booking_data)
-
-    # Update kuota
+    
     data_manager.update_paket(id_paket, {"kuota": paket['kuota'] - jumlah})
 
-    rprint(f"[green]Pembayaran berhasil! ID Booking: {booking_saved['id_booking']}[/green]")
-
-    # Cetak PDF
+    rprint(f"\n[bold green]MEMPROSES TIKET...[/bold green]")
     _generate_ticket_pdf(user, booking_saved, paket)
 
-
-# =====================================================================
-# --- HISTORI & RATING
-# =====================================================================
-
 def _lihat_histori(user, tunggu=True):
-
     if tunggu:
         utils.bersihkan_layar()
         rprint("--- [bold yellow]HISTORI PEMBELIAN[/bold yellow] ---")
@@ -348,110 +406,74 @@ def _lihat_histori(user, tunggu=True):
 
     if not bookings:
         rprint("[italic]Belum ada booking.[/italic]")
-        if tunggu:
-            time.sleep(2)
+        if tunggu: time.sleep(2)
         return
 
     table = Table(title=f"Histori Booking - {user['username']}")
     table.add_column("ID Booking", style="cyan")
-    table.add_column("ID Paket")
-    table.add_column("Nama Paket", style="green")
-    table.add_column("Jumlah", justify="right")
+    table.add_column("Paket", style="green")
+    table.add_column("Jml", justify="right")
     table.add_column("Total", justify="right", style="blue")
 
     for b in bookings:
         paket = data_manager.dapatkan_paket_by_id(b['id_paket'])
-        table.add_row(
-            b['id_booking'],
-            b['id_paket'],
-            paket['nama'] if paket else "[Hapus]",
-            str(b['jumlah_tiket']),
-            f"{b['total_bayar']:,}"
-        )
+        nama_paket = paket['nama'] if paket else "[Hapus]"
+        table.add_row(b['id_booking'], nama_paket, str(b['jumlah_tiket']), f"{b['total_bayar']:,}")
 
     console.print(table)
-    if tunggu:
-        input("\nEnter untuk kembali...")
+    if tunggu: input("\nEnter untuk kembali...")
 
 def _beri_rating(user):
-
     utils.bersihkan_layar()
     rprint("--- [bold yellow]BERI RATING[/bold yellow] ---")
 
     bookings = data_manager.dapatkan_booking_by_user(user['username'])
-    
     if not bookings:
         rprint("[red]Belum ada booking untuk dirating.[/red]")
-        time.sleep(2)
-        return
+        time.sleep(2); return
 
     _lihat_histori(user, tunggu=False)
-
     id_paket = input("\nID Paket yang ingin dirating: ").strip()
 
-    if id_paket not in {b['id_paket'] for b in bookings}:
-        rprint("[red]Anda belum membeli paket ini.[/red]")
-        time.sleep(2)
-        return
+    paket_ids_user = [b['id_paket'] for b in bookings]
+    
+    if id_paket not in paket_ids_user:
+        rprint("[red]Anda belum membeli paket ini atau ID salah.[/red]")
+        time.sleep(2); return
 
     paket = data_manager.dapatkan_paket_by_id(id_paket)
-    if not paket:
-        rprint("[red]Paket tidak ditemukan.[/red]")
-        time.sleep(2)
-        return
-
+    
     while True:
         try:
-            skor = int(input("Skor (1–5): "))
-            if 1 <= skor <= 5:
-                break
-        except:
-            pass
-        rprint("[red]Masukkan skor valid.[/red]")
+            skor = int(input(f"Skor untuk {paket['nama']} (1-5): "))
+            if 1 <= skor <= 5: break
+        except: pass
+        rprint("[red]1 sampai 5.[/red]")
 
-    komentar = input("Komentar (opsional): ").strip()
-
+    komentar = input("Komentar: ").strip()
     data_manager.simpan_rating_baru({
         "username_user": user['username'],
         "id_paket": id_paket,
         "skor": skor,
         "komentar": komentar
     })
-
-    rprint("[green]Terima kasih atas rating Anda![/green]")
-    time.sleep(2)
+    rprint("[green]Rating terkirim![/green]"); time.sleep(2)
 
 def _tampilkan_menu_riwayat(user):
-
     while True:
         utils.bersihkan_layar()
         rprint("--- [bold yellow]RIWAYAT SAYA[/bold yellow] ---")
         rprint("[1] Lihat Histori")
         rprint("[2] Beri Rating")
         rprint("[3] Kembali")
-
-        pilih = input("Pilih (1–3): ").strip()
-
-        if pilih == '1':
-            _lihat_histori(user)
-        elif pilih == '2':
-            _beri_rating(user)
-        elif pilih == '3':
-            break
-        else:
-            rprint("[red]Pilihan tidak valid[/red]")
-            time.sleep(1)
-
-# =====================================================================
-# --- ENTRY POINT
-# =====================================================================
+        p = input("Pilih: ").strip()
+        if p == '1': _lihat_histori(user)
+        elif p == '2': _beri_rating(user)
+        elif p == '3': break
 
 def start(user):
-
     utils.bersihkan_layar()
-
     jumlah_booking = len(data_manager.dapatkan_booking_by_user(user['username']))
-    
     rprint(f"[green]Selamat datang, {user['username']}![/green]")
     rprint(f"Anda memiliki {jumlah_booking} riwayat booking.")
     time.sleep(2)
@@ -465,20 +487,13 @@ def start(user):
         rprint("[4] Riwayat Saya")
         rprint("[5] Logout")
 
-        pilih = input("Pilih (1–5): ").strip()
-
-        if pilih == '1':
-            _lihat_semua_paket()
-        elif pilih == '2':
-            _lihat_detail_paket()
-        elif pilih == '3':
-            _beli_tiket(user)
-        elif pilih == '4':
-            _tampilkan_menu_riwayat(user)
-        elif pilih == '5':
+        p = input("Pilih: ").strip()
+        if p == '1': _lihat_semua_paket()
+        elif p == '2': _lihat_detail_paket()
+        elif p == '3': _beli_tiket(user)
+        elif p == '4': _tampilkan_menu_riwayat(user)
+        elif p == '5': 
             rprint("[cyan]Logout berhasil.[/cyan]")
-            time.sleep(1)
-            break
+            time.sleep(1); break
         else:
-            rprint("[red]Pilihan tidak valid[/red]")
-            time.sleep(1)
+            rprint("[red]Pilihan salah[/red]"); time.sleep(1)

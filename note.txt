@@ -1,0 +1,8 @@
+Library Pihak Ketiga (Install Manual)
+
+rich
+stdiomask
+qrcode
+reportlab
+pillow
+pandas

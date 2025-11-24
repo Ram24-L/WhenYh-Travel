@@ -38,31 +38,31 @@ def handle_register():
     print("--- REGISTER AKUN BARU (USER) ---")
     username = input("Username baru: ").strip() 
 
-    # Validasi username
+
     if not username:
         rprint("\n[bold red][ERROR] Username tidak boleh kosong![/bold red]")
         time.sleep(2)
         return
 
-    # 1. Cek apakah username sudah ada
+
     if data_manager.dapatkan_user_by_username(username):
         rprint(f"\n[bold red][ERROR] Username '{username}' sudah terpakai. Silakan pilih yang lain.[/bold red]")
         time.sleep(2)
         return
 
-    # --- TAMBAHAN BARU: INPUT EMAIL ---
+  
     email = input("Alamat Email: ").strip()
     
-    # Validasi sederhana email (harus ada '@' dan '.')
+
     if "@" not in email or "." not in email:
         rprint("\n[bold red][ERROR] Format email tidak valid (harus mengandung '@' dan '.').[/bold red]")
         time.sleep(2)
         return
-    # ----------------------------------
 
-    # 2. Input password
+
+
     while True:
-        password = getpass.getpass("Password baru: ")
+        password = stdiomask.getpass("Password baru: ",mask="*")
         konfirmasi_password = getpass.getpass("Konfirmasi password: ")
 
         if password != konfirmasi_password:
@@ -72,18 +72,15 @@ def handle_register():
         else:
             break 
 
-    # 3. Hash password
     password_hashed = utils.hash_password(password)
-
-    # 4. Buat objek user baru
+  
     user_baru = {
         "username": username,
         "password_hash": password_hashed,
         "role": "user",
-        "email": email  # <--- SIMPAN EMAIL DI SINI
+        "email": email  
     }
 
-    # 5. Simpan ke data_manager
     data_manager.simpan_user_baru(user_baru)
 
     rprint(f"\n[bold green]Registrasi berhasil! Akun '{username}' telah dibuat.[/bold green]")
